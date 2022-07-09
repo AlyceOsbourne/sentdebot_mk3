@@ -11,7 +11,7 @@ bot_version = f"v{'.'.join(map(str, __version__))}"
 
 class Sentdebot(commands.Bot):
     def __init__(self, **options):
-        super().__init__(command_prefix="sentdebot.", strip_after_prefix=True, **options)
+        super().__init__("sentdebot.", strip_after_prefix=True, **options)
         self.token = os.environ.get('TOKEN')
 
     def run(self):
@@ -40,12 +40,14 @@ class Sentdebot(commands.Bot):
             for cog in self.cogs:
                 embed.add_field(name=cog, value=self.get_cog(cog).__doc__)
             await guild.system_channel.send(embed=embed)
+            # send list of registered commands
+            embed = nextcord.Embed(title='Registered commands', color=0x00ff00)
+            for command in self.commands:
+                embed.add_field(name=command.name, value=command.help)
+            await guild.system_channel.send(embed=embed)
 
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot:
-            return
+
 
 
 
