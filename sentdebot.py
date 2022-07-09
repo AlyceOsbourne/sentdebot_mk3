@@ -11,23 +11,45 @@ bot_version = f"v{'.'.join(map(str, __version__))}"
 
 class Sentdebot(commands.Bot):
     def __init__(self, **options):
-        super().__init__(**options)
+        super().__init__("sentdebot.", strip_after_prefix=True, **options)
         self.token = os.environ.get('TOKEN')
 
     def run(self):
+        if not os.path.exists('cogs'):
+            os.makedirs('cogs')
+        for file in os.listdir('cogs'):
+            if file.startswith('cog_'):
+                try:
+                    if os.path.isdir(os.path.join('cogs', file)):
+                        for init_file in os.listdir(os.path.join('cogs', file)):
+                            if init_file.startswith('__init__'):
+                                self.load_extension(f'cogs.{file}.{init_file[:-3]}')
+                    elif file.endswith('.py'):
+                        self.load_extension(f'cogs.{file[:-3]}')
+                except Exception as e:
+                    print(f'Error loading cog: {e}')
+                    continue
         super().run(self.token, reconnect=True)
 
     @commands.Cog.listener()
     async def on_ready(self):
         for guild in self.guilds:
             await guild.system_channel.send(f'Sentdebot {bot_version} is online!')
+            # make an embed witha list of loaded cogs
+            embed = nextcord.Embed(title='Loaded cogs', color=0x00ff00)
+            for cog in self.cogs:
+                embed.add_field(name=cog, value=self.get_cog(cog).__doc__)
+            await guild.system_channel.send(embed=embed)
+            # send list of registered commands
+            embed = nextcord.Embed(title='Registered commands', color=0x00ff00)
+            for command in self.commands:
+                embed.add_field(name=command.name, value=command.help)
+            await guild.system_channel.send(embed=embed)
 
-    @commands.command(name='hi', help='reply hi to a user who says hi')
-    async def hi(self, ctx):
-        # if user is self, don't reply
-        if ctx.author == self.user:
-            return
-        await ctx.send(f'hi {ctx.author.mention}')
+
+
+
+
 
 
 if __name__ == "__main__":
