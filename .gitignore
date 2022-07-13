@@ -1,10 +1,2 @@
-/.env
-/.idea/.gitignore
-/.idea/dbnavigator.xml
-/.idea/discord.xml
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/inspectionProfiles/profiles_settings.xml
-/.idea/inspectionProfiles/Project_Default.xml
-/.idea/sentdebot_mk3.iml
-/.idea/vcs.xml
+.env
+.idea
